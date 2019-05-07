@@ -7,6 +7,7 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.authenticate
 import io.ktor.auth.basic
+import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.http.content.resource
 import io.ktor.http.content.static
 import io.ktor.routing.routing
@@ -27,12 +28,19 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module() {
     initDB()
 
+    // config values
     val gdprNoticeProvided = environment.config.propertyOrNull("filegur.gdprNoticeProvided")?.getString()?.toBoolean() ?: false
+    val useForwardedHeaders = environment.config.propertyOrNull("filegur.useForwardedHeaders")?.getString()?.toBoolean() ?: false
+
     val userService = UserService()
     val groupService = GroupService()
     val downloadFileService = DownloadFileService()
     val downloadService = DownloadService()
     val requestLoggingService = RequestLoggingService()
+
+    if (useForwardedHeaders) {
+        install(XForwardedHeaderSupport)
+    }
 
     install(Authentication) {
         basic {
