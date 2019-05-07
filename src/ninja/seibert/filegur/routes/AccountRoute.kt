@@ -122,7 +122,7 @@ fun Route.account(
         }
         userService.updateUser(
             principal.user.id, principal.user.name, principal.user.salt,
-            sha512(principal.user.passwordHash + newPassword)
+            sha512(principal.user.salt + newPassword)
         )
         call.respondText("Your password was updated.")
     }
